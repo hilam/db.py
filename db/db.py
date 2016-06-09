@@ -21,6 +21,7 @@ from .queries import mysql as mysql_templates
 from .queries import postgres as postgres_templates
 from .queries import sqlite as sqlite_templates
 from .queries import mssql as mssql_templates
+from .queries import oracle as oracle_templates
 
 from .utils import profile_path
 
@@ -30,6 +31,7 @@ queries_templates = {
     "redshift": postgres_templates,
     "sqlite": sqlite_templates,
     "mssql": mssql_templates,
+    "oracle": oracle_templates
 }
 
 # attempt to import the relevant database libraries
@@ -74,6 +76,11 @@ try:
 except ImportError:
     HAS_PYMSSQL = False
 
+try:
+    import cx_Oracle as orcl
+    HAS_ORACLE = True
+except ImportError:
+    HAS_ORACLE = False
 
 DBPY_PROFILE_ID = ".db.py_"
 S3_PROFILE_ID = ".db.py_s3_"
@@ -784,6 +791,7 @@ class DB(object):
             mysql: 3306
             sqlite: n/a
             mssql: 1433
+            oracle: 1521
     filename: str
         path to sqlite database
     dbname: str
@@ -844,6 +852,8 @@ class DB(object):
                 port = None
             elif dbtype=="mssql":
                 port = 1433
+            elif dbtype=="oracle":
+                port = 1521
             elif profile is not None:
                 pass
             else:
@@ -880,6 +890,11 @@ class DB(object):
                 raise Exception("Couldn't find psycopg2 library. Please ensure it is installed")
             self.con = pg.connect(user=self.username, password=self.password,
                 host=self.hostname, port=self.port, dbname=self.dbname)
+            self.cur = self.con.cursor()
+        elif self.dbtype=="oracle":
+            if not HAS_ORACLE:
+                raise Exception("Couldn't find cx_Oracle library. Please ensure it is installed")
+            self.con = cx_Oracle.connect("{0}/{1}@{2}:{3}/{4}".format(self.username, self.password, self.hostname, self.port, self.dbname))
             self.cur = self.con.cursor()
         elif self.dbtype=="sqlite":
             if not HAS_SQLITE:
