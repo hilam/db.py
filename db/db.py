@@ -77,7 +77,7 @@ except ImportError:
     HAS_PYMSSQL = False
 
 try:
-    import cx_Oracle as cx_Oracle
+    import cx_Oracle as orcl
     HAS_ORACLE = True
 except ImportError:
     HAS_ORACLE = False
@@ -894,7 +894,7 @@ class DB(object):
         elif self.dbtype=="oracle":
             if not HAS_ORACLE:
                 raise Exception("Couldn't find cx_Oracle library. Please ensure it is installed")
-            self.con = cx_Oracle.connect("{0}/{1}@{2}:{3}/{4}".format(self.username, self.password, self.hostname, self.port, self.dbname))
+            self.con = orcl.connect("{0}/{1}@{2}:{3}/{4}".format(self.username, self.password, self.hostname, self.port, self.dbname))
             self.cur = self.con.cursor()
         elif self.dbtype=="sqlite":
             if not HAS_SQLITE:
