@@ -77,7 +77,7 @@ except ImportError:
     HAS_PYMSSQL = False
 
 try:
-    import cx_Oracle as orcl
+    import cx_Oracle as cx_Oracle
     HAS_ORACLE = True
 except ImportError:
     HAS_ORACLE = False
